@@ -1,0 +1,71 @@
+#!/bin/bash                                      # Shebang line indicating the script is a bash script
+
+#SBATCH --job-name=“metaphlantest”               # Specifies the name of the job
+#SBATCH --nodes=1                                 # Specifies the number of nodes required for the job
+#SBATCH --ntasks=10                               # Specifies the number of tasks to be executed
+#SBATCH --time=7-00:00:00                         # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevan@ucsb.edu                # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                # Specifies when to send email notifications
+#SBATCH -e pipeline-trial-20Feb2023-%j.err       # Specifies the file for standard error output
+#SBATCH -o pipeline-trial-20Feb2023-%j.out       # Specifies the file for standard output
+
+##Activate Conda                                  # Comment indicating activation of Conda environment
+source ~/miniconda/etc/profile.d/conda.sh         # Sources the Conda initialization script
+conda activate mpa                               # Activates the specified Conda environment
+
+cd Dereplicated_Coassemblies/Juvenile            # Changes directory to specified path
+
+metaphlan \                                      # Metaphlan command to run
+bin.197.fasta,\
+bin.192.fasta,\
+bin.190.fasta,\
+bin.187.fasta,\
+bin.180.fasta,\
+bin.174.fasta,\
+bin.172.fasta,\
+bin.171.fasta,\
+bin.166.fasta,\
+bin.164.fasta,\
+bin.160.fasta,\
+bin.159.fasta,\
+bin.154.fasta,\
+bin.144.fasta,\
+bin.141.fasta,\
+bin.136.fasta,\
+bin.133.fasta,\
+bin.131.fasta,\
+bin.129.fasta,\
+bin.128.fasta,\
+bin.116.fasta,\
+bin.111.fasta,\
+bin.110.fasta,\
+bin.108.fasta,\
+bin.105.fasta,\
+bin.96.fasta,\
+bin.92.fasta,\
+bin.91.fasta,\
+bin.88.fasta,\
+bin.87.fasta,\
+bin.85.fasta,\
+bin.82.fasta,\
+bin.81.fasta,\
+bin.79.fasta,\
+bin.71.fasta,\
+bin.70.fasta,\
+bin.68.fasta,\
+bin.65.fasta,\
+bin.63.fasta,\
+bin.60.fasta,\
+bin.54.fasta,\
+bin.52.fasta,\
+bin.50.fasta,\
+bin.47.fasta,\
+bin.44.fasta,\
+bin.38.fasta,\
+bin.37.fasta,\
+bin.34.fasta,\
+bin.29.fasta,\
+bin.22.fasta,\
+bin.10.fasta,\
+bin.9.fasta \                                    # List of input FASTA files separated by commas
+--input_type fasta -o all_juvenile_coassembled_derep_metaphlan.txt --bowtie2out all_juvenile_coassembled_derep_metaphlan  # Output filenames and options for Metaphlan
