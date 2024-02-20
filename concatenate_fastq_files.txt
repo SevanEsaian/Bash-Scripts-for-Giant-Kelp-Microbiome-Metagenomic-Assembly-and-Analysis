@@ -1,0 +1,16 @@
+#!/bin/bash                                      # Shebang line indicating the script is a bash script
+
+#SBATCH --job-name="concatenate_files"           # Specifies the name of the job
+#SBATCH --nodes=1                                 # Specifies the number of nodes required for the job
+#SBATCH --ntasks=10                               # Specifies the number of tasks to be executed
+#SBATCH --time=7-00:00:00                         # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevan@ucsb.edu                # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                # Specifies when to send email notifications
+#SBATCH -e pipeline-trial-20Feb2023-%j.err       # Specifies the file for standard error output
+#SBATCH -o pipeline-trial-20Feb2023-%j.out       # Specifies the file for standard output
+
+cd /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse  # Changes directory to the specified path
+
+cat 58JUV_R1_clean.fastq 60JUV_R1_clean.fastq 62JUV_R1_clean.fastq 85JUV_R1_clean.fastq 86JUV_R1_clean.fastq 136MAT_R1_clean.fastq 137MAT_R1_clean.fastq 138MAT_R1_clean.fastq 139MAT_R1_clean.fastq 141MAT_R1_clean.fastq > all_forward_reads_combined.fastq  # Concatenates multiple forward read files into a single file
+
+cat 58JUV_R2_clean.fastq 60JUV_R2_clean.fastq 62JUV_R2_clean.fastq 85JUV_R2_clean.fastq 86JUV_R2_clean.fastq 136MAT_R2_clean.fastq 137MAT_R2_clean.fastq 138MAT_R2_clean.fastq 139MAT_R2_clean.fastq 141MAT_R2_clean.fastq > all_reverse_reads_combined.fastq  # Concatenates multiple reverse read files into a single file
