@@ -1,0 +1,18 @@
+#!/bin/bash                                      # Shebang line indicating the script is a bash script
+
+#SBATCH --job-name=“metabat2”                    # Specifies the name of the job
+#SBATCH --nodes=1                                 # Specifies the number of nodes required for the job
+#SBATCH --ntasks=10                               # Specifies the number of tasks to be executed
+#SBATCH --time=7-00:00:00                         # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevan@ucsb.edu                # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                # Specifies when to send email notifications
+#SBATCH -e pipeline-trial-20Feb2023-%j.err       # Specifies the file for standard error output
+#SBATCH -o pipeline-trial-20Feb2023-%j.out       # Specifies the file for standard output
+
+##Activate Conda                                  # Comment indicating activation of Conda environment
+source ~/anaconda3/etc/profile.d/conda.sh         # Sources the Conda initialization script
+conda activate /home/sevan/anaconda3/envs/metabat2  # Activates the specified Conda environment
+
+cd /home/sevan/AllvsAll_megahit_assembly/AllvsAll_bowtie2_mapping  # Changes directory to specified path
+
+runMetaBat.sh AllvsAll_coassembly_final_contigs.fasta AllvsAll_coassembly_sorted.bam  # Runs MetaBat2 with specified input files
