@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --job-name="Cyclobacteriaceae_count"
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=5
+#SBATCH --time=30-00:00:00
+#SBATCH --mail-user=sevanesaian@ucsb.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -e %x.err-%N
+#SBATCH -o %x.out-%N
+
+#!/bin/bash
+
+# Directory containing antismash output folders
+antismash_dir="/home/sevan/Metagenomes/Cyclobacteriaceae"
+
+# Output file for the summary table
+output_file="/home/sevan/Metagenomes/Cyclobacteriaceae/Cyclobacteriaceae_antismash_summary.csv"
+
+# Create the header for the output file
+echo "Metagenome,Type,CDS_Count" > "$output_file"
+
+# Loop through each antismash output folder
+for antismash_folder in "$antismash_dir"/antismashoutput_Cyclobacteriaceae_*; do
+    if [ -d "$antismash_folder" ]; then
+        metagenome_name=$(basename "$antismash_folder" | cut -d '_' -f 3-)
+        
+        # Loop through each .gbk file in the folder
+        for gbk_file in "$antismash_folder"/*.gbk; do
+            type=$(grep -oE 'product="[A-Za-z0-9_ ]+"' "$gbk_file" | cut -d '"' -f 2)
+            type="${type//\"/\"\"}"  # Escape double quotes
+            cds_count=$(grep -o "CDS" "$gbk_file" | wc -l)
+            
+            # Append information to the output file, properly formatting the 'type' field
+            echo "\"$metagenome_name\",\"$type\",$cds_count" >> "$output_file"
+        done
+    fi
+done
