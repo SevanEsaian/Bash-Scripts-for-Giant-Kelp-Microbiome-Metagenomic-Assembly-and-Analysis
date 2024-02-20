@@ -1,0 +1,19 @@
+#!/bin/bash                                      # Shebang line indicating the script is a bash script
+
+#SBATCH --job-name=“matprokka”                   # Specifies the name of the job
+#SBATCH --nodes=1                                 # Specifies the number of nodes required for the job
+#SBATCH --ntasks=10                               # Specifies the number of tasks to be executed
+#SBATCH --mem-per-cpu=8G                          # Specifies the memory required per CPU core
+#SBATCH --time=7-00:00:00                         # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevan@ucsb.edu                # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                # Specifies when to send email notifications
+#SBATCH -e pipeline-trial-20Feb2023-%j.err       # Specifies the file for standard error output
+#SBATCH -o pipeline-trial-20Feb2023-%j.out       # Specifies the file for standard output
+
+##Activate Conda                                  # Comment indicating activation of Conda environment
+source ~/miniconda/etc/profile.d/conda.sh         # Sources the Conda initialization script
+conda activate prokka                            # Activates the specified Conda environment
+
+cd ~/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Mature_Microbiome_Coassemble_ReadMappedincludingJuvs  # Changes directory to specified path
+
+prokka --outdir Mature_contigs_greater_1kb --prefix Mature_contigs_greater_1kb Mature_contigs_greater_1kb.fasta  # Runs Prokka with specified input file and output directory
