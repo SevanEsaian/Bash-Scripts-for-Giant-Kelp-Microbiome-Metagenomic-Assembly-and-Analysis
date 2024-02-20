@@ -1,0 +1,55 @@
+#!/bin/bash                                      # Shebang line indicating the script is a bash script
+
+#SBATCH --job-name=“fastCounts”                  # Specifies the name of the job
+#SBATCH --nodes=1                                 # Specifies the number of nodes required for the job
+#SBATCH --ntasks=10                               # Specifies the number of tasks to be executed
+#SBATCH --time=7-00:00:00                         # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevan@ucsb.edu                # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                # Specifies when to send email notifications
+#SBATCH -e pipeline-trial-20Feb2023-%j.err       # Specifies the file for standard error output
+#SBATCH -o pipeline-trial-20Feb2023-%j.out       # Specifies the file for standard output
+
+##Activate Conda                                  # Comment indicating activation of Conda environment
+source ~/miniconda/etc/profile.d/conda.sh         # Sources the Conda initialization script
+conda activate subread                           # Activates the specified Conda environment
+
+# List of metagenome names (e.g., metagenome1, metagenome2, metagenome3)
+bin_list=("bin.5" "bin.8" ... "bin.231")         # Array containing names of metagenomes to be processed
+
+# Full paths to the directories containing GTF and BAM files for each metagenome
+gtf_dir="/home/sevan/Dereplicated_Coassemblies/checkM_Output_Mature_coassembled_dereplicated/bins/"  # Path to directory containing GTF files
+bam_dir="/home/sevan/Dereplicated_Coassemblies/Mature/"  # Path to directory containing BAM files
+
+# Loop through each metagenome and run featureCounts
+for bin in "${bin_list[@]}"; do                  # Loop through each metagenome
+    gtf_file="${gtf_dir}${bin}.gtf"             # Construct path to GTF file for the current metagenome
+    bam_file="${bam_dir}${bin}.bam"             # Construct path to BAM file for the current metagenome
+    output_file="${bin}_counts.txt"             # Name of the output count file for the current metagenome
+
+    # Run featureCounts for the current metagenome
+    featureCounts -T 10 -t transcript,CDS -g transcript_id -p -a "$gtf_file" -o "$output_file" "$bam_file"
+
+    # Check if the count file was generated, and if not, print an error message
+    if [ ! -s "$output_file" ]; then            # Check if the output file is empty
+        echo "Error: Count file not generated for $bin"  # Print error message if output file is empty
+    fi
+done
+
+# Create a space-separated list of individual count files
+count_files_list=()                             # Array to store the names of count files
+
+for bin in "${bin_list[@]}"; do                  # Loop through each metagenome
+    count_file="${bin}_counts.txt"               # Name of the count file for the current metagenome
+    if [ -s "$count_file" ]; then                # Check if the count file exists and is not empty
+        count_files_list+=("$count_file")        # Add the count file to the list of count files
+    else
+        echo "Error: Missing count file for $bin"  # Print error message if count file is missing or empty
+    fi
+done
+
+# Merge the individual count files into a single counts file if count_files_list is not empty
+if [ "${#count_files_list[@]}" -gt 0 ]; then     # Check if count_files_list is not empty
+    paste "${count_files_list[@]}" > merged_counts.txt  # Merge count files into a single file
+else
+    echo "Error: No count files to merge. Check for missing count files or errors in featureCounts."  # Print error message if no count files to merge
+fi
