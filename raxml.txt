@@ -1,0 +1,25 @@
+#!/bin/bash                                      # Shebang line indicating the script is a bash script
+#SBATCH --job-name="PSBraxml"                    # Specifies the name of the job
+#SBATCH --nodes=1                                 # Specifies the number of nodes required for the job
+#SBATCH --ntasks-per-node=10                      # Specifies the number of tasks to be executed per node
+#SBATCH --time=30-00:00:00                        # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevanesaian@ucsb.edu          # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                # Specifies when to send email notifications
+#SBATCH -e %x.err-%N                              # Specifies the file pattern for standard error output
+#SBATCH -o %x.out-%N                              # Specifies the file pattern for standard output
+
+##Activate Conda                                  # Comment indicating activation of Conda environment
+source ~/miniconda3/bin/activate                  # Activates the Conda environment
+conda activate /home/sevan/miniconda3/envs/raxml  # Activates the specified Conda environment
+
+cd /home/sevan/Metagenomes/Thiohalocapsa_PSB/Gbk_For_Phylogenetic_Tree  # Changes directory to specified path
+
+raxmlHPC-PTHREADS \                              # Executes the RAxML tool with the following options:
+  -f a \                                         # Specifies the command: rapid bootstrap and search for best-scoring ML tree in one program run
+  -m GTRGAMMA \                                  # Specifies the model of nucleotide substitution: General Time Reversible model with gamma-distributed rate variation among sites
+  -N 100 \                                       # Specifies the number of bootstrap replicates: 100
+  -x 12345 \                                     # Specifies the random number seed for bootstrapping: 12345
+  -p 12345 \                                     # Specifies the random number seed for starting the parsimony inferences: 12345
+  -T 10 \                                        # Specifies the number of threads to use for the run: 10
+  -s Thiohalocapsa_PSB_gbk_aligned_msa_noterpene.phy \  # Specifies the input alignment file
+  -n Thiohalocapsa_PSB_gbk_aligned_msa_noterpene_tree    # Specifies the output file name for the resulting tree

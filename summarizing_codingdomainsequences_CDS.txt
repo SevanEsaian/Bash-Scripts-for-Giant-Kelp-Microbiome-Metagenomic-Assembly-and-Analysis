@@ -1,0 +1,42 @@
+#!/bin/bash
+#SBATCH --job-name="PSB_CDS_count"                  # Specifies the name of the job
+#SBATCH --nodes=1                                    # Specifies the number of nodes required for the job
+#SBATCH --ntasks-per-node=5                          # Specifies the number of tasks to be executed per node
+#SBATCH --time=30-00:00:00                           # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevanesaian@ucsb.edu             # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                   # Specifies when to send email notifications
+#SBATCH -e %x.err-%N                                 # Specifies the file pattern for standard error output
+#SBATCH -o %x.out-%N                                 # Specifies the file pattern for standard output
+
+#!/bin/bash                                         # Redundant shebang line, as it's not needed here
+
+# Directory containing metagenome folders
+metagenome_dir="/home/sevan/Metagenomes/Cyclobacteriaceae/output_folder"
+
+# Output file for the summary table
+output_file="/home/sevan/Metagenomes/Cyclobacteriaceae/cds_summary_table.csv"
+
+# Create the header for the output file
+echo "Metagenome,CDS Count" > "$output_file"
+
+# Loop through each metagenome folder
+for folder in "$metagenome_dir"/*; do              # Iterates over each folder in the specified directory
+    if [ -d "$folder" ]; then                      # Checks if the current item is a directory
+        metagenome_name=$(basename "$folder")      # Retrieves the name of the current metagenome
+        
+        # Search for GFF files within the folder (ignoring subdirectories)
+        gff_files=("$folder"/*.gff)                # Retrieves a list of GFF files in the current folder
+        
+        # Initialize CDS count
+        cds_count=0
+        
+        # Loop through GFF files and count CDS occurrences
+        for gff_file in "${gff_files[@]}"; do      # Iterates over each GFF file
+            current_cds_count=$(grep -o "CDS" "$gff_file" | wc -l)  # Counts the occurrences of "CDS" in the current GFF file
+            (( cds_count += current_cds_count ))   # Updates the total CDS count
+        done
+        
+        # Append metagenome name and CDS count to the output file
+        echo "$metagenome_name,$cds_count" >> "$output_file"  # Appends the metagenome name and CDS count to the output file
+    fi
+done
