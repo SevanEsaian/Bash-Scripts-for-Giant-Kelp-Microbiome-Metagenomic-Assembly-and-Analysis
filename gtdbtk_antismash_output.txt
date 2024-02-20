@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name="Thiohalocapsa_PSB"
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=10
+#SBATCH --time=30-00:00:00
+#SBATCH --mail-user=sevanesaian@ucsb.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -e %x.err-%N
+#SBATCH -o %x.out-%N
+
+# Activate Conda for CheckM
+source ~/miniconda3/etc/profile.d/conda.sh  # Sources the Conda environment activation script
+conda activate ~/miniconda3/envs/gtdbtk-2.1.1/bin/gtdbtk  # Activates the GTDB-Tk Conda environment
+
+gtdbtk classify_wf --genome_dir /home/sevan/Metagenomes/Thiohalocapsa_PSB --out_dir /home/sevan/Metagenomes/Thiohalocapsa_PSB/gtdkbt_Output --extension fasta --cpus 10  # Runs the GTDB-Tk classify_wf command on the specified genome directory, outputting results to the specified directory with specified parameters

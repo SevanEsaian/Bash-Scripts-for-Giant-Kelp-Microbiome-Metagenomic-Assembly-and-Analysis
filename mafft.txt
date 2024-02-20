@@ -1,0 +1,17 @@
+#!/bin/bash
+#SBATCH --job-name="PSBmafft"
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=10
+#SBATCH --time=30-00:00:00
+#SBATCH --mail-user=sevanesaian@ucsb.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -e %x.err-%N
+#SBATCH -o %x.out-%N
+
+##Activate Conda
+source ~/miniconda3/bin/activate  # Activates the Conda environment
+conda activate /home/sevan/miniconda3/envs/mafft  # Activates the 'mafft' Conda environment
+
+cd /home/sevan/Metagenomes/Thiohalocapsa_PSB/Gbk_For_Phylogenetic_Tree  # Changes directory to the specified location
+
+mafft Thiohalocapsa_PSB_gbk_msa_noterpene.fasta > Thiohalocapsa_PSB_gbk_aligned_msa_noterpene.fasta  # Runs MAFFT on the input FASTA file and saves the aligned sequences to a new file

@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name="bin.85"
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=2
+#SBATCH --time=30-00:00:00
+#SBATCH --mail-user=sevanesaian@ucsb.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -e %x.err-%N
+#SBATCH -o %x.out-%N
+
+##Activate Conda
+source ~/miniconda3/bin/activate  # Activates Conda
+conda activate /home/sevan/miniconda3/envs/run_dbcan  # Activates the specified Conda environment
+
+run_dbcan /home/sevan/All_Maature_Coassembled_Bins_For_Derep/bin.85.fasta meta --pul --cgc_substrate --out_dir /home/sevan/allrawreads_coassembled_dereplicated/dereplicated_genomes/mature_bin.85  # Runs the dbCAN tool on the specified FASTA file with specified options, outputting results to the designated directory

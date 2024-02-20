@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --job-name="juvenile_bin.116"
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=2
+#SBATCH --time=30-00:00:00
+#SBATCH --mail-user=sevanesaian@ucsb.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -e %x.err-%N
+#SBATCH -o %x.out-%N
+
+##Activate Conda
+source ~/miniconda3/bin/activate  # Activates Conda
+conda activate /home/sevan/miniconda3/envs/antismash  # Activates the specified Conda environment
+
+cd /home/sevan/bins_dRep_masterlist_11142023  # Changes directory to the specified location
+
+antismash juvenile_bin.116.fasta \  # Runs antiSMASH on the specified FASTA file
+--taxon bacteria \  # Specifies the taxonomic group for the analysis
+--fullhmmer \  # Enables full HMMER annotations
+--clusterhmmer \  # Enables ClusterHMM annotations
+--tigrfam \  # Enables TIGRFAM annotations
+--cc-mibig \  # Enables ClusterFinder with MIBiG database
+--pfam2go \  # Enables Pfam2GO annotations
+--genefinding-tool prodigal \  # Specifies the gene-finding tool to use (Prodigal)
+--output-dir juvenile_bin.116.antismash.output  # Specifies the output directory for antiSMASH results

@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --job-name="CycloProkka"
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=5
+#SBATCH --time=30-00:00:00
+#SBATCH --mail-user=sevanesaian@ucsb.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -e %x.err-%N
+#SBATCH -o %x.out-%N
+
+##Activate Conda
+source ~/miniconda3/bin/activate
+conda activate prokka
+
+cd Metagenomes/Cyclobacteriaceae
+
+# List of input FASTA files
+fasta_files=("PP7_B5_8.fasta" "PP7_A5_5.fasta" "PP7_A4_13.fasta" "PP6_B2_10.fasta" "PP6_A1_7.fasta" "PP7_A5_4.fasta" "PP7_A4_1.fasta" "PP6_B2_4.fasta" "PP6_A1_3.fasta" "PP4SE_B1_10.fasta" "PP4SE_A4_20.fasta" "PP4NW_B4_10.fasta" "PP4SE_B1_5.fasta" "PP4SE_A4_4.fasta" "PP4SE_A2_14.fasta" "PP4NW_B4_8.fasta" "PP4SE_A2_24.fasta" "PP4NW_B2_4.fasta" "PP4NW_A4_17.fasta" "PP4NW_A4_8.fasta" "LS9_B6_12.fasta" "LS9_A2_7.fasta" "LS4_B3_13.fasta" "LS3_B5_5.fasta" "LS6_A5_17.fasta" "LS3_B2_16.fasta" "LS2_B5_19.fasta" "LS4_A1_7.fasta" "GS23_B1_.fasta13" "GS23_B1_2.fasta" "GS23_A3_16.fasta" "GS23_A3_6.fasta" "GS22_H7_6.fasta" "GS22_H7_4.fasta" "GS22_H6_15.fasta" "GS22_H6_8.fasta" "GS22_G7_12.fasta" "GS22_G7_1.fasta" "GS11W_C5_16.fasta" "GS11W_C5_9.fasta" "GS11W_C3_7.fasta" "GS11W_A4_12.fasta" "GS11E_C1_15.fasta" "GS11E_A5_2.fasta" "GS11E_A3_6.fasta" "GS11E_A3_4.fasta" "GS10_A5_10.fasta" "GS7_B2_7.fasta" "GS7_A3_11.fasta" "GS7_A3_6.fasta")
+
+# Run Prokka for each FASTA file
+for input_sequence in "${fasta_files[@]}"; do
+    output_folder="output_folder/${input_sequence%%.*}_output"  # Example output folder name
+    output_prefix="${input_sequence%%.*}"  # Example output prefix
+
+    prokka --outdir "$output_folder" --prefix "$output_prefix" "$input_sequence"
+done
