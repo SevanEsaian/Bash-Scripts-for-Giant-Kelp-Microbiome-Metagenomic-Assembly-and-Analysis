@@ -1,0 +1,31 @@
+#!/bin/bash                                      # Shebang line indicating the script is a bash script
+
+#SBATCH --job-name=“58JUV”                       # Specifies the name of the job
+#SBATCH --nodes=1                                 # Specifies the number of nodes required for the job
+#SBATCH --ntasks=2                                # Specifies the number of tasks to be executed
+#SBATCH --time=7-00:00:00                         # Specifies the maximum time the job will run
+#SBATCH --mail-user=sevan@ucsb.edu                # Specifies the email address for job notifications
+#SBATCH --mail-type=BEGIN,END,FAIL                # Specifies when to send email notifications
+#SBATCH -e pipeline-trial-20Feb2023-%j.err       # Specifies the file for standard error output
+#SBATCH -o pipeline-trial-20Feb2023-%j.out       # Specifies the file for standard output
+
+##Activate Conda                                  # Comment indicating activation of Conda environment
+source ~/miniconda3/etc/profile.d/conda.sh       # Sources the Conda initialization script
+conda activate /home/sevan/miniconda3/envs/bowtie2  # Activates the specified Conda environment
+
+cd /home/sevan/competitive_mapping               # Changes directory to /home/sevan/competitive_mapping
+
+##bowtie2-build /home/sevan/competitive_mapping/all_masterlist_fastafiles.fasta all_masterlist_fastafiles_index  # Commented-out line, not executed
+
+bowtie2 -x /home/sevan/competitive_mapping/all_masterlist_fastafiles_index \  # Runs Bowtie2 with specified index file
+-1 /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/58JUV_R1_clean.fastq \  # Specifies the first input fastq file
+-2 /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/58JUV_R2_clean.fastq \  # Specifies the second input fastq file
+--no-unal -p 10 -S all_masterlist_fastafiles_index_58JUV.sam  # Specifies options for Bowtie2, including output SAM file
+
+conda deactivate                                 # Deactivates the current Conda environment
+source ~/miniconda3/etc/profile.d/conda.sh       # Sources the Conda initialization script again
+conda activate /home/sevan/miniconda3/envs/samtools  # Activates a different Conda environment
+
+samtools view -bS all_masterlist_fastafiles_index_58JUV.sam > all_masterlist_fastafiles_index_58JUV.bam  # Converts SAM to BAM format
+samtools sort all_masterlist_fastafiles_index_58JUV.bam -o all_masterlist_fastafiles_index_58JUV_sorted.bam  # Sorts BAM file
+samtools idxstats all_masterlist_fastafiles_index_58JUV_sorted.bam > all_masterlist_fastafiles_index_58JUV_sorted_idxstat.txt  # Generates index stats
