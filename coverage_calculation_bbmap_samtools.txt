@@ -1,0 +1,62 @@
+#!/bin/bash
+
+#SBATCH --job-name=“mature_bin.224”
+#SBATCH --nodes=1
+#SBATCH --ntasks=3
+#SBATCH --time=7-00:00:00
+#SBATCH --mail-user=sevan@ucsb.edu(opens in new tab)
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH -e pipeline-trial-20Feb2023-%j.err
+#SBATCH -o pipeline-trial-20Feb2023-%j.out
+
+
+##Activate Conda
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate /home/sevan/miniconda3/envs/bowtie2
+
+cd /home/sevan/Coverage_Calculation_PGAP_Submission
+  
+
+bowtie2-build /home/sevan/Bin_MasterList_ManuallyCurated/mature_bin.224.fasta mature_bin.224.fasta_index 
+
+bowtie2 -x /home/sevan/Coverage_Calculation_PGAP_Submission/mature_bin.224.fasta_index \
+-1 /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/136MAT_R1_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/137MAT_R1_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/138MAT_R1_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/139MAT_R1_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/141MAT_R1_clean.fastq  \
+-2 /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/136MAT_R2_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/137MAT_R2_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/138MAT_R2_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/139MAT_R2_clean.fastq /home/sevan/GKMicro_Nova_Reads/fastq_files/cleaned_fastq_files/Cleaned_Reads_NothingElse/141MAT_R2_clean.fastq \
+--no-unal -p 10 -S mature_bin.224.coverage.sam
+
+
+conda deactivate 
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate /home/sevan/miniconda3/envs/samtools
+ 
+samtools view -bS mature_bin.224.coverage.sam > mature_bin.224.coverage.bam
+samtools sort mature_bin.224.coverage.bam -o mature_bin.224.coverage.sorted.bam
+samtools idxstats mature_bin.224.coverage.sorted.bam > mature_bin.224.coverage.sorted.bam_idxstats.txt
+samtools depth mature_bin.224.coverage.sorted.bam > mature_bin.224.coverage_calculated.txt 
+
+
+# Path to the input file
+input_file="/home/sevan/Coverage_Calculation_PGAP_Submission/mature_bin.224.coverage_calculated.txt"
+
+# Output filename
+output_file="/home/sevan/Coverage_Calculation_PGAP_Submission/mature_bin.224.coverage_final.txt"
+
+# Initialize variables
+sum=0
+total_positions=0
+
+# Read each line of the input file
+while IFS=$'\t' read -r _ _ depth; do
+    # Add the value from the third column to the sum
+    sum=$((sum + depth))
+    # Increment the total number of positions
+    total_positions=$((total_positions + 1))
+done < "$input_file"
+
+# Calculate the average coverage
+average_coverage=$(awk "BEGIN {print $sum / $total_positions}")
+
+# Save the average coverage to the output file
+echo "$average_coverage" > "$output_file"
+
+echo "Average coverage saved to $output_file"
